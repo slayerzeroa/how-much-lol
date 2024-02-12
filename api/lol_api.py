@@ -92,3 +92,7 @@ def get_champions_played(encryptedPUUID: str, championId: str) -> int:
 # response = requests.get(url, headers=header)
 
 # print(response.json())
+
+# print(get_summoner_info("고라파덕화구이"))
+
+# vd0-_FTK1nehRR26O3YbJgE8asX5bHbvn0y77vtJNw7TwHU
