@@ -25,17 +25,17 @@ start = time.time()
 gameName = '고라파덕화구이'
 tagLine = "KR1"
 
-puuid = lol.get_summoner_info(gameName, tagLine)['puuid']
+print(lol.get_playtime(gameName, tagLine))
 
-# print(puuid)
 
-champion_id = lol.get_played_champion_id(puuid)
+gameName = '치카치카양치중'
+tagLine = "ECGOD"
 
-# print(champion_id)
+print(lol.get_playtime(gameName, tagLine))
 
-total_championPoints = lol.get_every_championPoints(puuid)
 
-print(total_championPoints)
-print(total_championPoints/600)
 
-# print("소환사 정보를 가져오는데 걸린 시간: ", time.time() - start)
+# print(total_championPoints)
+# print(total_championPoints/600)
+
+print("소환사 정보를 가져오는데 걸린 시간: ", time.time() - start)

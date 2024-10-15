@@ -16,13 +16,13 @@ headers = {"X-Riot-Token": api_keys[0]}
 
 game_log_headers = {"X-Riot-Token": api_keys[0]}
 
-# def rotate_api_key():
-#     # queue로 구현
-#     global headers
-#     global api_keys
-#     key = api_keys.pop(0)
-#     api_keys.append(headers["X-Riot-Token"])
-#     headers["X-Riot-Token"] = key
+def rotate_api_key():
+    # queue로 구현
+    global headers
+    global api_keys
+    key = api_keys.pop(0)
+    api_keys.append(headers["X-Riot-Token"])
+    headers["X-Riot-Token"] = key
 
 
 def get_summoner_info(gameName: str, tagLine: str) -> dict:
@@ -127,7 +127,18 @@ def get_every_championPoints(puuid: str) -> list:
     return champion_points
 
 
-# 한 판 당 대략 660점
+
+def get_playing_count(gameName:str, tagLine:str) -> int:
+    # 한 판 당 대략 600점
+    puuid = get_summoner_info(gameName, tagLine)['puuid']
+    total_championPoints = get_every_championPoints(puuid)
+    rotate_api_key()
+    return total_championPoints/600
+
+
+def get_playtime(gameName: str, tagLine: str, unit:str='minutes') -> int:
+    playing_count = get_playing_count(gameName, tagLine)
+    return round(playing_count*30)
 
 # puuid = get_summoner_info("고라파덕화구이")["puuid"]
 # # print(get_summoner_info("고라파덕화구이"))
