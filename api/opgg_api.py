@@ -27,13 +27,21 @@ def get_game_count (driver):
 def total_game_count(driver):
     game_count = 0
 
-    driver.find_element(By.XPATH, '//*[@id="content-container"]/div/div/div[1]/div[2]/div/button').click()
+    # 랭크게임 클릭
+    driver.implicitly_wait(10)
+    driver.find_element(By.XPATH, '//*[@id="content-container"]/div/div/div[1]/div[1]/button[1]').click()
+
+
+    # 시즌 리스트 클릭
+    driver.implicitly_wait(10)
+    driver.find_element(By.XPATH, '//*[@id="content-container"]/div/div/div[2]/div[2]/div/button').click()
 
     season_list = driver.find_elements(By.CLASS_NAME, "season-list")
 
+    # 각 시즌 클릭
     for i in range(len(season_list[0].text.split("\n"))):
-        driver.find_element(By.XPATH, f'//*[@id="content-container"]/div/div/div[1]/div[2]/div/div/button[{i+1}]').click()
+        driver.find_element(By.XPATH, f'//*[@id="content-container"]/div/div/div[2]/div[2]/div/div/button[{i+1}]').click()
         game_count += get_game_count(driver)
         driver.implicitly_wait(0.5)
-        driver.find_element(By.XPATH, '//*[@id="content-container"]/div/div/div[1]/div[2]/div/button').click()
+        driver.find_element(By.XPATH, '//*[@id="content-container"]/div/div/div[2]/div[2]/div/button').click()
     return game_count

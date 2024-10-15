@@ -6,49 +6,67 @@ import utils
 import time
 import numpy as np
 
-# variable api_keys is a list of api keys
-api_keys = utils.read_api_keys("C:\\Users\\slaye\\VscodeProjects\\how-much-lol\\env\\api_key.txt")
 
-header = {"X-Riot-Token": "RGAPI-782a547a-875e-4051-899d-13977f17db14"}
+# # variable api_keys is a list of api keys
+# api_keys = utils.read_api_keys("C:\\Users\\slaye\\VscodeProjects\\how-much-lol\\env\\api_key.txt")
 
-game_log_header = {"X-Riot-Token": "RGAPI-1ddd3e7c-f22c-4841-8580-1faad67684ef"}
+api_keys = utils.load_api_keys()
 
-def rotate_api_key():
-    # queue로 구현
-    global header
-    global api_keys
-    key = api_keys.pop(0)
-    api_keys.append(header["X-Riot-Token"])
-    header["X-Riot-Token"] = key
+headers = {"X-Riot-Token": api_keys[0]}
+
+game_log_headers = {"X-Riot-Token": api_keys[0]}
+
+# def rotate_api_key():
+#     # queue로 구현
+#     global headers
+#     global api_keys
+#     key = api_keys.pop(0)
+#     api_keys.append(headers["X-Riot-Token"])
+#     headers["X-Riot-Token"] = key
 
 
-def get_summoner_info(summoner_name: str) -> dict:
-    url = f"https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/{summoner_name}"
-    response = requests.get(url, headers=game_log_header)
-    rotate_api_key()
-    return response.json()
+def get_summoner_info(gameName: str, tagLine: str) -> dict:
+    """소환사 정보를 가져오는 함수."""
+    url = f"https://asia.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}"
+    
+    try:
+        response = requests.get(url, headers=headers)
+        
+        # 응답 상태 코드 체크
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Error: {response.status_code}, {response.json()}")
+            # rotate_api_key()  # 에러가 발생한 경우 API 키를 회전시킴
+            return {"error": "Failed to fetch summoner info"}
+
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        # rotate_api_key()
+        return {"error": str(e)}
+
 
 def get_account_info(puuid: str) -> dict:
     url = f"https://asia.api.riotgames.com/riot/account/v1/accounts/by-puuid/{puuid}"
-    response = requests.get(url, headers=game_log_header)
-    rotate_api_key()
+    response = requests.get(url, headers=game_log_headers)
+    # rotate_api_key()
     return response.json()
 
-def get_game_logs(puuid: str, start: int, count:int=100) -> dict:
-    url = f"https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}"
-    response = requests.get(url, headers=game_log_header)
+def get_game_logs(puuid: str, start: int=0, count:int=100) -> dict:
+    url = f"https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?startTime={start}&count={count}"
+    response = requests.get(url, headers=game_log_headers)
     return response.json()
 
 def get_game_info(match_id: str) -> dict:
     url = f"https://asia.api.riotgames.com/lol/match/v5/matches/{match_id}"
-    response = requests.get(url, headers=game_log_header)
-    rotate_api_key()
+    response = requests.get(url, headers=game_log_headers)
+    # rotate_api_key()
     return response.json()
 
 def get_game_duration(match_id: str) -> int:
     url = f"https://asia.api.riotgames.com/lol/match/v5/matches/{match_id}"
-    response = requests.get(url, headers=header)
-    rotate_api_key()
+    response = requests.get(url, headers=headers)
+    # rotate_api_key()
     return response.json()['info']['gameDuration']
 
 def get_every_game_logs(puuid: str) -> list:
@@ -77,10 +95,39 @@ def get_average_game_time(game_logs: list) -> list:
 
 def get_champions_played(encryptedPUUID: str, championId: str) -> int:
     url = f"https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{encryptedPUUID}/by-champion/{championId}"
-    response = requests.get(url, headers=header)
-    rotate_api_key()
+    response = requests.get(url, headers=headers)
+    # rotate_api_key()
     return response.json()
 
+
+def get_champions_mastery(encryptedPUUID: str) -> dict:
+    url = f"https://kr.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{encryptedPUUID}"
+    response = requests.get(url, headers=headers)
+    # rotate_api_key()
+    return response.json()
+
+
+def get_played_champion_id(puuid: str) -> list:
+    mastery_list = get_champions_mastery(puuid)
+    champion_id_list = []
+
+    for mastery in mastery_list:
+        champion_id_list.append(mastery['championId'])
+    
+    return champion_id_list
+
+
+def get_every_championPoints(puuid: str) -> list:
+    mastery_list = get_champions_mastery(puuid)
+    champion_points = 0
+
+    for mastery in mastery_list:
+        champion_points += int(mastery['championPoints'])
+    
+    return champion_points
+
+
+# 한 판 당 대략 660점
 
 # puuid = get_summoner_info("고라파덕화구이")["puuid"]
 # # print(get_summoner_info("고라파덕화구이"))
@@ -88,8 +135,8 @@ def get_champions_played(encryptedPUUID: str, championId: str) -> int:
 # # print(puuid)
 # # print(get_champions_played(puuid, "20"))
 
-# url = f"https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
-# response = requests.get(url, headers=header)
+# url = f"https://asia.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
+# response = requests.get(url, headers=headers)
 
 # print(response.json())
 

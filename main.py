@@ -14,15 +14,17 @@ from selenium.webdriver.common.by import By
 
 import numpy as np
 
-import lol_api as lol
-import opgg_api as opgg
+import api.lol_api as lol
+import api.opgg_api as opgg
 import time
 
 
+start = time.time()
 
 # name = input()
 name = "고라파덕화구이"
-puuid = lol.get_summoner_info(name)['puuid']
+tagline = "KR1"
+puuid = lol.get_summoner_info(name, tagline)['puuid']
 print(puuid)
 info = lol.get_account_info(puuid)
 print(info)
@@ -37,7 +39,7 @@ login_data = {
 # 웹드라이버 설정
 options = webdriver.ChromeOptions()
 # 창 숨기는 옵션 추가
-# options.add_argument("headless")
+options.add_argument("headless")
 
 driver = webdriver.Chrome(options=options)
 url = f'https://www.op.gg/summoners/kr/{login_data["q"]}-{login_data["region"]}/champions'
@@ -59,4 +61,6 @@ driver.close()
 
 # print(1800 * total_count / 60 / 60)
 
-print(f"{name}... 롤 안 했으면... {(1800 * total_count / 60 / 60) * 9860}원을 벌었을 것이다.")
+print(f"{name}... 롤 안 했으면... {int((1800 * total_count / 60 / 60) * 9860)}원을 벌었을 것이다.")
+
+print(f"실행 시간: {time.time() - start}")
