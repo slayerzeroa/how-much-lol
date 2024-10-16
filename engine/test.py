@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import sys
 
-sys.path.append('api')
+sys.path.append('engine/api')
 
 import utils
 
@@ -32,7 +32,6 @@ gameName = '치카치카양치중'
 tagLine = "ECGOD"
 
 print(lol.get_playtime(gameName, tagLine))
-
 
 
 # print(total_championPoints)
